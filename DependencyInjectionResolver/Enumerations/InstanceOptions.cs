@@ -1,0 +1,1 @@
+﻿public enum InstanceOptions { OneInstance, DiferentInstances };
