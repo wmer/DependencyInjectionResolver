@@ -36,7 +36,7 @@ namespace DependencyInjectionResolver.Helpers {
             _parameterName[(type, paramName)] = obj;
         }
 
-        public object TryGtDependency(Type type, String paramName) {
+        public object TryGetDependency(Type type, String paramName) {
             if (type.GetTypeInfo().IsInterface) {
                 throw new ArgumentException("type não pode ser uma interface.");
             }
@@ -53,7 +53,7 @@ namespace DependencyInjectionResolver.Helpers {
             _parameterPosition[(type, paramPosition)] = obj;
         }
 
-        public object TryGtDependency(Type type, int paramPosition) {
+        public object TryGetDependency(Type type, int paramPosition) {
             if (type.GetTypeInfo().IsInterface) {
                 throw new ArgumentException("type não pode ser uma interface.");
             }

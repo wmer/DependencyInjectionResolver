@@ -48,9 +48,9 @@ namespace DependencyInjectionResolver.Helpers {
             var i = 0;
             foreach (var param in paramters) {
                 if (_classDependencyHelper.ExistDependencyDefinedWithParamName(type, param.Name)) {
-                    objects[i] = _classDependencyHelper.TryGtDependency(type, param.Name);
+                    objects[i] = _classDependencyHelper.TryGetDependency(type, param.Name);
                 } else if (_classDependencyHelper.ExistDependencyDefinedWithPositionOfParameter(type, param.Position)) {
-                    objects[i] = _classDependencyHelper.TryGtDependency(type, param.Position);
+                    objects[i] = _classDependencyHelper.TryGetDependency(type, param.Position);
                 } else {
                     var paramType = param.ParameterType;
                     if (paramType.GetTypeInfo().IsInterface) {
