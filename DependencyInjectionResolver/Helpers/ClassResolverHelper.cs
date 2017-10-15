@@ -1,5 +1,4 @@
 ﻿using Reflection.Optimization;
-using Reflection.Optimization.Generic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,42 +24,46 @@ namespace DependencyInjectionResolver.Helpers {
         }
         
         public object Resolve(Type type) {
-            if (type.GetTypeInfo().IsInterface) {
-                type = _typeHelper.GetImplementation(type);
+            lock (new object()) {
+                if (type.GetTypeInfo().IsInterface) {
+                    type = _typeHelper.GetImplementation(type);
+                }
+                object obj = _instanceHelper.TryGetInCache(type);
+                if (obj != null) return obj;
+                ParameterInfo[] paramters = _classHelper.GetParameters(type);
+                if (paramters.Count() == 0) {
+                    obj = _reflectionOptimizations.CreateConstructor(type, Type.EmptyTypes)();
+                    _instanceHelper.AddObjectInCache(type, obj);
+                } else {
+                    var objects = ResolveDependencies(type, paramters);
+                    var pameters = _typeHelper.ParamaterInfoToType(paramters).ToArray();
+                    obj = _reflectionOptimizations.CreateConstructor(type, pameters)(objects);
+                    _instanceHelper.AddObjectInCache(type, obj);
+                }
+                return obj;
             }
-            object obj = _instanceHelper.TryGetInCache(type);
-            if (obj != null) return obj;
-            ParameterInfo[] paramters = _classHelper.GetParameters(type);
-            if (paramters.Count() == 0) {
-                obj = _reflectionOptimizations.CreateConstructor(type, Type.EmptyTypes)();
-                _instanceHelper.AddObjectInCache(type, obj);
-            } else {
-                var objects = ResolveDependencies(type, paramters);
-                var pameters = _typeHelper.ParamaterInfoToType(paramters).ToArray();
-                obj = _reflectionOptimizations.CreateConstructor(type, pameters)(objects);
-                _instanceHelper.AddObjectInCache(type, obj);
-            }
-            return obj;
         }
         
         private object[] ResolveDependencies(Type type, ParameterInfo[] paramters) {
-            var objects = new object[paramters.Length];
-            var i = 0;
-            foreach (var param in paramters) {
-                if (_classDependencyHelper.ExistDependencyDefinedWithParamName(type, param.Name)) {
-                    objects[i] = _classDependencyHelper.TryGetDependency(type, param.Name);
-                } else if (_classDependencyHelper.ExistDependencyDefinedWithPositionOfParameter(type, param.Position)) {
-                    objects[i] = _classDependencyHelper.TryGetDependency(type, param.Position);
-                } else {
-                    var paramType = param.ParameterType;
-                    if (paramType.GetTypeInfo().IsInterface) {
-                        paramType = _typeHelper.GetImplementation(paramType);
+            lock (new object()) {
+                var objects = new object[paramters.Length];
+                var i = 0;
+                foreach (var param in paramters) {
+                    if (_classDependencyHelper.ExistDependencyDefinedWithParamName(type, param.Name)) {
+                        objects[i] = _classDependencyHelper.TryGetDependency(type, param.Name);
+                    } else if (_classDependencyHelper.ExistDependencyDefinedWithPositionOfParameter(type, param.Position)) {
+                        objects[i] = _classDependencyHelper.TryGetDependency(type, param.Position);
+                    } else {
+                        var paramType = param.ParameterType;
+                        if (paramType.GetTypeInfo().IsInterface) {
+                            paramType = _typeHelper.GetImplementation(paramType);
+                        }
+                        objects[i] = Resolve(paramType);
                     }
-                    objects[i] = Resolve(paramType);
+                    i++;
                 }
-                i++;
+                return objects;
             }
-            return objects;
         }
     }
 }

@@ -14,26 +14,30 @@ namespace DependencyInjectionResolver.Helpers {
         }
 
         public ParameterInfo[] GetParameters(Type type) {
-            ParameterInfo[] paramters = null;
-            ConstructorInfo constructor = null;
-            if (_typeHelper.IsDefinedSignature(type)) {
-                constructor = type.GetConstructor(_typeHelper.GetDefinedSignature(type));
-            } else {
-                constructor = GetConstructor(type);
+            lock (new object()) {
+                ParameterInfo[] paramters = null;
+                ConstructorInfo constructor = null;
+                if (_typeHelper.IsDefinedSignature(type)) {
+                    constructor = type.GetConstructor(_typeHelper.GetDefinedSignature(type));
+                } else {
+                    constructor = GetConstructor(type);
+                }
+                paramters = constructor.GetParameters();
+                return paramters;
             }
-            paramters = constructor.GetParameters();
-            return paramters;
         }
 
         private ConstructorInfo GetConstructor(Type type) {
-            var ctors = type.GetConstructors();
-            var ctor = ctors[0];
-            for (var i = 0; i < ctors.Count(); i++) {
-                if (ctors[i].GetParameters().Count() > ctor.GetParameters().Count()) {
-                    ctor = ctors[i];
+            lock (new object()) {
+                var ctors = type.GetConstructors();
+                var ctor = ctors[0];
+                for (var i = 0; i < ctors.Count(); i++) {
+                    if (ctors[i].GetParameters().Count() > ctor.GetParameters().Count()) {
+                        ctor = ctors[i];
+                    }
                 }
+                return ctor;
             }
-            return ctor;
         }
     }
 }

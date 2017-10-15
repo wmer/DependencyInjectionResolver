@@ -18,83 +18,105 @@ namespace DependencyInjectionResolver.Helpers {
         }
 
         public bool IsDefined(Type type) {
-            return _interfaceDefinition.ContainsKey(type);
+            lock (new object()) {
+                return _interfaceDefinition.ContainsKey(type);
+            }
         }
 
         public void DefineImplementation(Type interfaceType, Type implementationType) {
-            _interfaceDefinition[interfaceType] = implementationType;
+            lock (new object()) {
+                _interfaceDefinition[interfaceType] = implementationType;
+            }
         }
 
         public bool IsDefinedSignature(Type classType) {
-            if (classType.GetTypeInfo().IsInterface) {
-                throw new ArgumentException("classType não pode ser uma interface.");
+            lock (new object()) {
+                if (classType.GetTypeInfo().IsInterface) {
+                    throw new ArgumentException("classType não pode ser uma interface.");
+                }
+                return _signature.ContainsKey(classType);
             }
-            return _signature.ContainsKey(classType);
         }
 
         public void DefineSignature(Type classType, params Type[] signature) {
-            if (classType.GetTypeInfo().IsInterface) {
-                throw new ArgumentException("classType não pode ser uma interface.");
+            lock (new object()) {
+                if (classType.GetTypeInfo().IsInterface) {
+                    throw new ArgumentException("classType não pode ser uma interface.");
+                }
+                _signature[classType] = signature;
             }
-            _signature[classType] = signature;
         }
 
         public Type[] GetDefinedSignature(Type classType) {
-            if (classType.GetTypeInfo().IsInterface) {
-                throw new ArgumentException("classType não pode ser uma interface.");
+            lock (new object()) {
+                if (classType.GetTypeInfo().IsInterface) {
+                    throw new ArgumentException("classType não pode ser uma interface.");
+                }
+                return _signature[classType];
             }
-            return _signature[classType];
         }
 
         public Type GetDefinedImplementation(Type interfaceType) {
-            return _interfaceDefinition[interfaceType];
+            lock (new object()) {
+                return _interfaceDefinition[interfaceType];
+            }
         }
 
         public void AddInCache(Type interfaceType, Type implementationType) {
-            definitionCache[interfaceType] = implementationType;
+            lock (new object()) {
+                definitionCache[interfaceType] = implementationType;
+            }
         }
 
         public Type TryGetImplementation(Type interfaceType) {
-            if (IsDefined(interfaceType)) {
-                return GetDefinedImplementation(interfaceType);
+            lock (new object()) {
+                if (IsDefined(interfaceType)) {
+                    return GetDefinedImplementation(interfaceType);
+                }
+                return TryGetFromCache(interfaceType);
             }
-            return TryGetFromCache(interfaceType);
         }
 
         public Type TryGetFromCache(Type interfaceType) {
-            if (definitionCache.ContainsKey(interfaceType)) {
-                return definitionCache[interfaceType];
+            lock (new object()) {
+                if (definitionCache.ContainsKey(interfaceType)) {
+                    return definitionCache[interfaceType];
+                }
+                return null;
             }
-            return null;
         }
 
         public IEnumerable<Type> ParamaterInfoToType(ParameterInfo[] parameters) {
-            foreach (var parameter in parameters) {
-                yield return parameter.ParameterType;
+            lock (new object()) {
+                foreach (var parameter in parameters) {
+                    yield return parameter.ParameterType;
+                }
             }
         }
 
         public Type GetImplementation(Type type) {
-            var typegeneric = type;
-            Type implementationType = null;
-            Type[] argumentsTypes = null;
-            var isGeneric = type.GetTypeInfo().IsGenericType;
-            if (TryGetImplementation(type) != null) {
-                implementationType = TryGetImplementation(type);
-            } else {
-                if (isGeneric) {
-                    argumentsTypes = type.GetGenericArguments();
-                    type = type.GetGenericTypeDefinition();
-                }
-                implementationType = AssemblyHelper.GetTypes(x => x.GetTypeInfo().GetInterface(type.FullName) != null, type.GetTypeInfo().Assembly, true).First();
-                if (isGeneric) {
-                    implementationType = implementationType.MakeGenericType(argumentsTypes);
-                    AddInCache(typegeneric, implementationType);
+            lock (new object()) {
+                var typegeneric = type;
+                Type implementationType = null;
+                Type[] argumentsTypes = null;
+                var isGeneric = type.GetTypeInfo().IsGenericType;
+                if (TryGetImplementation(type) != null) {
+                    implementationType = TryGetImplementation(type);
                 } else {
-                    AddInCache(type, implementationType);
+                    if (isGeneric) {
+                        argumentsTypes = type.GetGenericArguments();
+                        type = type.GetGenericTypeDefinition();
+                    }
+                    implementationType = AssemblyHelper.GetTypes(x => x.GetTypeInfo().GetInterface(type.FullName) != null, type.GetTypeInfo().Assembly, true).First();
+                    if (isGeneric) {
+                        implementationType = implementationType.MakeGenericType(argumentsTypes);
+                        AddInCache(typegeneric, implementationType);
+                    } else {
+                        AddInCache(type, implementationType);
+                    }
                 }
+                return implementationType;
             }
-            return implementationType;
         }
     }
 }

@@ -16,51 +16,63 @@ namespace DependencyInjectionResolver.Helpers {
         }
 
         public bool ExistDependencyDefinedWithParamName(Type type, String paramName) {
-            if (type.GetTypeInfo().IsInterface) {
-                throw new ArgumentException("type não pode ser uma interface.");
+            lock (new object()) {
+                if (type.GetTypeInfo().IsInterface) {
+                    throw new ArgumentException("type não pode ser uma interface.");
+                }
+                return _parameterName.ContainsKey((type, paramName));
             }
-            return _parameterName.ContainsKey((type, paramName));
         }
 
         public bool ExistDependencyDefinedWithPositionOfParameter(Type type, int paramPosition) {
-            if (type.GetTypeInfo().IsInterface) {
-                throw new ArgumentException("type não pode ser uma interface.");
+            lock (new object()) {
+                if (type.GetTypeInfo().IsInterface) {
+                    throw new ArgumentException("type não pode ser uma interface.");
+                }
+                return _parameterPosition.ContainsKey((type, paramPosition));
             }
-            return _parameterPosition.ContainsKey((type, paramPosition));
         }
 
         public void DefineDependency(Type type, String paramName, object obj) {
-            if (type.GetTypeInfo().IsInterface) {
-                throw new ArgumentException("type não pode ser uma interface.");
+            lock (new object()) {
+                if (type.GetTypeInfo().IsInterface) {
+                    throw new ArgumentException("type não pode ser uma interface.");
+                }
+                _parameterName[(type, paramName)] = obj;
             }
-            _parameterName[(type, paramName)] = obj;
         }
 
         public object TryGetDependency(Type type, String paramName) {
-            if (type.GetTypeInfo().IsInterface) {
-                throw new ArgumentException("type não pode ser uma interface.");
+            lock (new object()) {
+                if (type.GetTypeInfo().IsInterface) {
+                    throw new ArgumentException("type não pode ser uma interface.");
+                }
+                if (ExistDependencyDefinedWithParamName(type, paramName)) {
+                    return _parameterName[(type, paramName)];
+                }
+                return null;
             }
-            if (ExistDependencyDefinedWithParamName(type, paramName)) {
-                return _parameterName[(type, paramName)];
-            }
-            return null;
         }
 
         public void DefineDependency(Type type, int paramPosition, object obj) {
-            if (type.GetTypeInfo().IsInterface) {
-                throw new ArgumentException("type não pode ser uma interface.");
+            lock (new object()) {
+                if (type.GetTypeInfo().IsInterface) {
+                    throw new ArgumentException("type não pode ser uma interface.");
+                }
+                _parameterPosition[(type, paramPosition)] = obj;
             }
-            _parameterPosition[(type, paramPosition)] = obj;
         }
 
         public object TryGetDependency(Type type, int paramPosition) {
-            if (type.GetTypeInfo().IsInterface) {
-                throw new ArgumentException("type não pode ser uma interface.");
+            lock (new object()) {
+                if (type.GetTypeInfo().IsInterface) {
+                    throw new ArgumentException("type não pode ser uma interface.");
+                }
+                if (ExistDependencyDefinedWithPositionOfParameter(type, paramPosition)) {
+                    return _parameterPosition[(type, paramPosition)];
+                }
+                return null;
             }
-            if (ExistDependencyDefinedWithPositionOfParameter(type, paramPosition)) {
-                return _parameterPosition[(type, paramPosition)];
-            }
-            return null;
         }
     }
 }
