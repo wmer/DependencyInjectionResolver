@@ -9,9 +9,12 @@ namespace DependencyInjectionResolver.Helpers {
     internal partial class InstanceHelper {
         private Dictionary<Type, InstanceOptions> _instanceOptions;
         private Dictionary<Type, bool> _overrideOptions;
+
+        private object lock12 = new object();
+        private object lock13 = new object();
         
         public void DefineInstanceOptions(Type type, InstanceOptions option, bool overrideoption = true) {
-            lock (new object()) {
+            lock (lock12) {
                 if (type.GetTypeInfo().IsInterface) {
                     type = _typeHelper.GetImplementation(type);
                 }
@@ -26,7 +29,7 @@ namespace DependencyInjectionResolver.Helpers {
         }
 
         private bool ExistOverrideOptions(Type type) {
-            lock (new object()) {
+            lock (lock13) {
                 return _overrideOptions.ContainsKey(type);
             }
         }

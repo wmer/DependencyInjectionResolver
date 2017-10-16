@@ -12,19 +12,22 @@ namespace DependencyInjectionResolver.Helpers {
         private InstanceHelper _instanceHelper;
         private ClassHelper _classHelper;
         private ClassDependencyHelper _classDependencyHelper;
-        private ReflectionOptimizations _reflectionOptimizations;
+        private ConstructorHelper _constructorHelper;
+
+        private object lock1 = new object();
+        private object lock2 = new object();
 
         public ClassResolverHelper(TypeHelper typeHelper, ClassDependencyHelper classDependencyHelper, InstanceHelper instanceHelper) {
             _typeHelper = typeHelper;
             _instanceHelper = instanceHelper;
             _classHelper = new ClassHelper(_typeHelper);
             _classDependencyHelper = classDependencyHelper;
-            _reflectionOptimizations = new ReflectionOptimizations();
-            _instanceHelper.AddObjectInCache(typeof(ReflectionOptimizations), _reflectionOptimizations);
+            _constructorHelper = new ConstructorHelper();
+            _instanceHelper.AddObjectInCache(typeof(ConstructorHelper), _constructorHelper);
         }
         
         public object Resolve(Type type) {
-            lock (new object()) {
+            lock (lock1) {
                 if (type.GetTypeInfo().IsInterface) {
                     type = _typeHelper.GetImplementation(type);
                 }
@@ -32,12 +35,12 @@ namespace DependencyInjectionResolver.Helpers {
                 if (obj != null) return obj;
                 ParameterInfo[] paramters = _classHelper.GetParameters(type);
                 if (paramters.Count() == 0) {
-                    obj = _reflectionOptimizations.CreateConstructor(type, Type.EmptyTypes)();
+                    obj = _constructorHelper.CreateConstructor(type, Type.EmptyTypes)();
                     _instanceHelper.AddObjectInCache(type, obj);
                 } else {
                     var objects = ResolveDependencies(type, paramters);
                     var pameters = _typeHelper.ParamaterInfoToType(paramters).ToArray();
-                    obj = _reflectionOptimizations.CreateConstructor(type, pameters)(objects);
+                    obj = _constructorHelper.CreateConstructor(type, pameters)(objects);
                     _instanceHelper.AddObjectInCache(type, obj);
                 }
                 return obj;
@@ -45,7 +48,7 @@ namespace DependencyInjectionResolver.Helpers {
         }
         
         private object[] ResolveDependencies(Type type, ParameterInfo[] paramters) {
-            lock (new object()) {
+            lock (lock2) {
                 var objects = new object[paramters.Length];
                 var i = 0;
                 foreach (var param in paramters) {

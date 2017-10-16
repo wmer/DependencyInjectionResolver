@@ -7,21 +7,17 @@ using System.Threading.Tasks;
 namespace DependencyInjectionResolver.Extensions {
     public static class DependencyInjectionExtension {
         public static T Diferent<T>(this T obj) {
-            lock (new object()) {
-                var dependencies = new DependencyInjection();
-                return dependencies
-                            .BindingTypes(typeof(T), obj.GetType())
-                            .DefineLifeTimeOptions<T>(InstanceOptions.DiferentInstances)
-                            .Resolve<T>();
-            }
+            var dependencies = new DependencyInjection();
+            return dependencies
+                        .BindingTypes(typeof(T), obj.GetType())
+                        .DefineLifeTimeOptions<T>(InstanceOptions.DiferentInstances)
+                        .Resolve<T>();
         }
 
         public static DependencyInjection DiferentWith<T>(this T obj) {
-            lock (new object()) {
-                return new DependencyInjection()
-                                .BindingTypes(typeof(T), obj.GetType())
-                                .DefineLifeTimeOptions<T>(InstanceOptions.DiferentInstances);
-            }
+            return new DependencyInjection()
+                            .BindingTypes(typeof(T), obj.GetType())
+                            .DefineLifeTimeOptions<T>(InstanceOptions.DiferentInstances);
         }
     }
 }

@@ -9,12 +9,15 @@ namespace DependencyInjectionResolver.Helpers {
     internal class ClassHelper {
         private TypeHelper _typeHelper;
 
+        private object lock1 = new object();
+        private object lock2 = new object();
+
         public ClassHelper(TypeHelper typeHelper) {
             _typeHelper = typeHelper;
         }
 
         public ParameterInfo[] GetParameters(Type type) {
-            lock (new object()) {
+            lock (lock1) {
                 ParameterInfo[] paramters = null;
                 ConstructorInfo constructor = null;
                 if (_typeHelper.IsDefinedSignature(type)) {
@@ -28,7 +31,7 @@ namespace DependencyInjectionResolver.Helpers {
         }
 
         private ConstructorInfo GetConstructor(Type type) {
-            lock (new object()) {
+            lock (lock2) {
                 var ctors = type.GetConstructors();
                 var ctor = ctors[0];
                 for (var i = 0; i < ctors.Count(); i++) {

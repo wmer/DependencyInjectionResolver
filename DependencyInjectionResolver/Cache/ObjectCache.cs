@@ -9,8 +9,12 @@ namespace DependencyInjectionResolver.Helpers {
     internal partial class InstanceHelper {
         private static Dictionary<Type, object> _objCache = new Dictionary<Type, object>();
 
+        private object lock1 = new object();
+        private object lock2 = new object();
+        private object lock3 = new object();
+
         public bool ExistInstance(Type type) {
-            lock (new object()) {
+            lock (lock1) {
                 if (type.GetTypeInfo().IsInterface) {
                     type = _typeHelper.TryGetImplementation(type);
                     if (type != null) {
@@ -24,7 +28,7 @@ namespace DependencyInjectionResolver.Helpers {
         }
         
         public void AddObjectInCache(Type type, object obj) {
-            lock (new object()) {
+            lock (lock2) {
                 if (type.GetTypeInfo().IsInterface) {
                     throw new ArgumentException("type não pode ser uma interface.");
                 }
@@ -33,7 +37,7 @@ namespace DependencyInjectionResolver.Helpers {
         }
         
         public object TryGetInCache(Type type) {
-            lock (new object()) {
+            lock (lock3) {
                 if (type.GetTypeInfo().IsInterface) {
                     throw new ArgumentException("type não pode ser uma interface.");
                 }

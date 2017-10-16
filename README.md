@@ -10,12 +10,12 @@ Microsoft.Extensions.DependencyModel
 var class = new Class{ new Dependency1(), new Dependency2(), new Dependency3() };  
 Com dependencyInjectionResolver:  
 Quando não há possibilidades de ambiguidades, classes distintas que implementam a mesa interface podem ser feitas simplesmente assim:  
-Class class = new DependencyInjection<Class>().Resolve();  
+Class class = new DependencyInjection().Resolve<Class>();  
 Já em casos onde é preciso especificar a dependência, pode ser feito assim:  
-IClass class = new DependencyInjection<IClass>()  
+IClass class = new DependencyInjection()  
                 .BindingTypes<IDependency1, Class1>()  
                 .BindingTypes<IDependency2, Class4>()   
-                                                .Resolve();  
+                                                .Resolve<IClass>();  
   
 >.Resolve() sempre retornará a primeira instância do objeto, caso seja preciso uma instância diferente é preciso especificar com:  
 >  .Resolve(InstanceOptions.DiferentInstances).  
@@ -24,13 +24,14 @@ IClass class = new DependencyInjection<IClass>()
 > Nos próximos exemplos irei alternar as duas formas.
 ### Definindo assinatura de classe
 É possível definir a assinatura da classe e/ou de suas dependências:
-IClass class = new DependencyInjection<IClass>()  
+IClass class = new DependencyInjection()  
+  .BindingTypes<IClass, Class>()  
   .DefineConstructorSignature<Class>(typeof(IDependency1), typeof(IDependency2))  
-  .Resolve();  
+  .Resolve<IClass>();  
   Não genérico:
-  IClass class = new DependencyInjection<IClass>()  
+  IClass class = new DependencyInjection()  
   .DefineConstructorSignature(typeof(Class), typeof(IDependency1), typeof(IDependency2))  
-  .Resolve();  
+  .Resolve<IClass>();  
   >O primeiro parâmetro especifica a classe ao qual se deseja definir a assinatura.  
   >Por padrão, a classe é instanciada a partir do construtor com o maior número de dependências. 
   ### Passando objetos para o construtor
@@ -41,6 +42,6 @@ IClass class = new DependencyInjection<IClass>()
   .Resolve(typeof(Class)) as Class;  
   Com o nome do parâmetro:  
    Class2 class2 = new Class2();  
-  Class class = new DependencyInjection<Class>()  
+  Class class = new DependencyInjection()  
   .DefineDependency(typeof(Class), "class2", class2)  
-  .Resolve();  
+  .Resolve<Class>();  
