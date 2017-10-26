@@ -5,50 +5,51 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using DependencyInjectionResolver.Cache;
 
 namespace DependencyInjectionResolver.Helpers {
     internal class ClassResolverHelper {
-        private TypeHelper _typeHelper;
-        private InstanceHelper _instanceHelper;
-        private ClassHelper _classHelper;
-        private ClassDependencyHelper _classDependencyHelper;
-        private ConstructorHelper _constructorHelper;
+        private readonly TypeHelper _typeHelper;
+        private readonly ObjectCache _objectCache;
+        private readonly ClassHelper _classHelper;
+        private readonly ClassDependencyHelper _classDependencyHelper;
+        private readonly ConstructorHelper _constructorHelper;
 
-        private object lock1 = new object();
-        private object lock2 = new object();
+        private readonly object _lock1 = new object();
+        private readonly object _lock2 = new object();
 
-        public ClassResolverHelper(TypeHelper typeHelper, ClassDependencyHelper classDependencyHelper, InstanceHelper instanceHelper) {
+        public ClassResolverHelper(TypeHelper typeHelper, ClassDependencyHelper classDependencyHelper, ObjectCache objectCache) {
             _typeHelper = typeHelper;
-            _instanceHelper = instanceHelper;
+            _objectCache = objectCache;
             _classHelper = new ClassHelper(_typeHelper);
             _classDependencyHelper = classDependencyHelper;
             _constructorHelper = new ConstructorHelper();
-            _instanceHelper.AddObjectInCache(typeof(ConstructorHelper), _constructorHelper);
+            _objectCache.AddObjectInCache(typeof(ConstructorHelper), _constructorHelper);
         }
         
         public object Resolve(Type type) {
-            lock (lock1) {
+            lock (_lock1) {
                 if (type.GetTypeInfo().IsInterface) {
                     type = _typeHelper.GetImplementation(type);
                 }
-                object obj = _instanceHelper.TryGetInCache(type);
+                object obj = _objectCache.TryGetInCache(type);
                 if (obj != null) return obj;
                 ParameterInfo[] paramters = _classHelper.GetParameters(type);
-                if (paramters.Count() == 0) {
+                if (!paramters.Any()) {
                     obj = _constructorHelper.CreateConstructor(type, Type.EmptyTypes)();
-                    _instanceHelper.AddObjectInCache(type, obj);
+                    _objectCache.AddObjectInCache(type, obj);
                 } else {
                     var objects = ResolveDependencies(type, paramters);
                     var pameters = _typeHelper.ParamaterInfoToType(paramters).ToArray();
                     obj = _constructorHelper.CreateConstructor(type, pameters)(objects);
-                    _instanceHelper.AddObjectInCache(type, obj);
+                    _objectCache.AddObjectInCache(type, obj);
                 }
                 return obj;
             }
         }
         
         private object[] ResolveDependencies(Type type, ParameterInfo[] paramters) {
-            lock (lock2) {
+            lock (_lock2) {
                 var objects = new object[paramters.Length];
                 var i = 0;
                 foreach (var param in paramters) {

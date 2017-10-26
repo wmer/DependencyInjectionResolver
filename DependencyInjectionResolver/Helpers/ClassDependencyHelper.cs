@@ -7,15 +7,15 @@ using System.Reflection;
 
 namespace DependencyInjectionResolver.Helpers {
     internal class ClassDependencyHelper {
-        private Dictionary<(Type classType, String paramName), object> _parameterName;
-        private Dictionary<(Type classType, int paramPosition), object> _parameterPosition;
+        private readonly Dictionary<(Type classType, String paramName), object> _parameterName;
+        private readonly Dictionary<(Type classType, int paramPosition), object> _parameterPosition;
 
-        private object lock1 = new object();
-        private object lock2 = new object();
-        private object lock3 = new object();
-        private object lock4 = new object();
-        private object lock5 = new object();
-        private object lock6 = new object();
+        private readonly object _lock1 = new object();
+        private readonly object _lock2 = new object();
+        private readonly object _lock3 = new object();
+        private readonly object _lock4 = new object();
+        private readonly object _lock5 = new object();
+        private readonly object _lock6 = new object();
 
         public ClassDependencyHelper() {
             _parameterPosition = new Dictionary<(Type classType, int paramPosition), object>();
@@ -23,7 +23,7 @@ namespace DependencyInjectionResolver.Helpers {
         }
 
         public bool ExistDependencyDefinedWithParamName(Type type, String paramName) {
-            lock (lock1) {
+            lock (_lock1) {
                 if (type.GetTypeInfo().IsInterface) {
                     throw new ArgumentException("type não pode ser uma interface.");
                 }
@@ -32,7 +32,7 @@ namespace DependencyInjectionResolver.Helpers {
         }
 
         public bool ExistDependencyDefinedWithPositionOfParameter(Type type, int paramPosition) {
-            lock (lock2) {
+            lock (_lock2) {
                 if (type.GetTypeInfo().IsInterface) {
                     throw new ArgumentException("type não pode ser uma interface.");
                 }
@@ -41,7 +41,7 @@ namespace DependencyInjectionResolver.Helpers {
         }
 
         public void DefineDependency(Type type, String paramName, object obj) {
-            lock (lock3) {
+            lock (_lock3) {
                 if (type.GetTypeInfo().IsInterface) {
                     throw new ArgumentException("type não pode ser uma interface.");
                 }
@@ -50,7 +50,7 @@ namespace DependencyInjectionResolver.Helpers {
         }
 
         public object TryGetDependency(Type type, String paramName) {
-            lock (lock4) {
+            lock (_lock4) {
                 if (type.GetTypeInfo().IsInterface) {
                     throw new ArgumentException("type não pode ser uma interface.");
                 }
@@ -62,7 +62,7 @@ namespace DependencyInjectionResolver.Helpers {
         }
 
         public void DefineDependency(Type type, int paramPosition, object obj) {
-            lock (lock5) {
+            lock (_lock5) {
                 if (type.GetTypeInfo().IsInterface) {
                     throw new ArgumentException("type não pode ser uma interface.");
                 }
@@ -71,7 +71,7 @@ namespace DependencyInjectionResolver.Helpers {
         }
 
         public object TryGetDependency(Type type, int paramPosition) {
-            lock (lock6) {
+            lock (_lock6) {
                 if (type.GetTypeInfo().IsInterface) {
                     throw new ArgumentException("type não pode ser uma interface.");
                 }

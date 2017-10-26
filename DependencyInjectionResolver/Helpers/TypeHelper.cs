@@ -8,21 +8,21 @@ using System.Threading.Tasks;
 
 namespace DependencyInjectionResolver.Helpers {
     internal class TypeHelper {
-        private static Dictionary<Type, Type> definitionCache = new Dictionary<Type, Type>();
-        private Dictionary<Type, Type> _interfaceDefinition;
-        private Dictionary<Type, Type[]> _signature;
+        private static readonly Dictionary<Type, Type> DefinitionCache = new Dictionary<Type, Type>();
+        private readonly Dictionary<Type, Type> _interfaceDefinition;
+        private readonly Dictionary<Type, Type[]> _signature;
 
-        private object lock1 = new object();
-        private object lock2 = new object();
-        private object lock3 = new object();
-        private object lock4 = new object();
-        private object lock5 = new object();
-        private object lock6 = new object();
-        private object lock7 = new object();
-        private object lock8 = new object();
-        private object lock9 = new object();
-        private object lock10 = new object();
-        private object lock11 = new object();
+        private readonly object _lock1 = new object();
+        private readonly object _lock2 = new object();
+        private readonly object _lock3 = new object();
+        private readonly object _lock4 = new object();
+        private readonly object _lock5 = new object();
+        private readonly object _lock6 = new object();
+        private readonly object _lock7 = new object();
+        private readonly object _lock8 = new object();
+        private readonly object _lock9 = new object();
+        private readonly object _lock10 = new object();
+        private readonly object _lock11 = new object();
 
         public TypeHelper() {
             _interfaceDefinition = new Dictionary<Type, Type>();
@@ -30,19 +30,19 @@ namespace DependencyInjectionResolver.Helpers {
         }
 
         public bool IsDefined(Type type) {
-            lock (lock1) {
+            lock (_lock1) {
                 return _interfaceDefinition.ContainsKey(type);
             }
         }
 
         public void DefineImplementation(Type interfaceType, Type implementationType) {
-            lock (lock2) {
+            lock (_lock2) {
                 _interfaceDefinition[interfaceType] = implementationType;
             }
         }
 
         public bool IsDefinedSignature(Type classType) {
-            lock (lock3) {
+            lock (_lock3) {
                 if (classType.GetTypeInfo().IsInterface) {
                     throw new ArgumentException("classType não pode ser uma interface.");
                 }
@@ -51,7 +51,7 @@ namespace DependencyInjectionResolver.Helpers {
         }
 
         public void DefineSignature(Type classType, params Type[] signature) {
-            lock (lock4) {
+            lock (_lock4) {
                 if (classType.GetTypeInfo().IsInterface) {
                     throw new ArgumentException("classType não pode ser uma interface.");
                 }
@@ -60,7 +60,7 @@ namespace DependencyInjectionResolver.Helpers {
         }
 
         public Type[] GetDefinedSignature(Type classType) {
-            lock (lock5) {
+            lock (_lock5) {
                 if (classType.GetTypeInfo().IsInterface) {
                     throw new ArgumentException("classType não pode ser uma interface.");
                 }
@@ -69,19 +69,19 @@ namespace DependencyInjectionResolver.Helpers {
         }
 
         public Type GetDefinedImplementation(Type interfaceType) {
-            lock (lock6) {
+            lock (_lock6) {
                 return _interfaceDefinition[interfaceType];
             }
         }
 
         public void AddInCache(Type interfaceType, Type implementationType) {
-            lock (lock7) {
-                definitionCache[interfaceType] = implementationType;
+            lock (_lock7) {
+                DefinitionCache[interfaceType] = implementationType;
             }
         }
 
         public Type TryGetImplementation(Type interfaceType) {
-            lock (lock8) {
+            lock (_lock8) {
                 if (IsDefined(interfaceType)) {
                     return GetDefinedImplementation(interfaceType);
                 }
@@ -90,16 +90,16 @@ namespace DependencyInjectionResolver.Helpers {
         }
 
         public Type TryGetFromCache(Type interfaceType) {
-            lock (lock9) {
-                if (definitionCache.ContainsKey(interfaceType)) {
-                    return definitionCache[interfaceType];
+            lock (_lock9) {
+                if (DefinitionCache.ContainsKey(interfaceType)) {
+                    return DefinitionCache[interfaceType];
                 }
                 return null;
             }
         }
 
         public IEnumerable<Type> ParamaterInfoToType(ParameterInfo[] parameters) {
-            lock (lock10) {
+            lock (_lock10) {
                 foreach (var parameter in parameters) {
                     yield return parameter.ParameterType;
                 }
@@ -107,7 +107,7 @@ namespace DependencyInjectionResolver.Helpers {
         }
 
         public Type GetImplementation(Type type) {
-            lock (lock11) {
+            lock (_lock11) {
                 var typegeneric = type;
                 Type implementationType = null;
                 Type[] argumentsTypes = null;
