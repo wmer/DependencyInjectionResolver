@@ -22,7 +22,7 @@ namespace DependencyInjectionResolver.Helpers {
             _typeHelper = typeHelper;
             _objectCache = objectCache;
             _classHelper = new ClassHelper(_typeHelper);
-            _classDependencyHelper = classDependencyHelper;
+            _classDependencyHelper = classDependencyHelper; 
             _constructorHelper = new ConstructorHelper();
             _objectCache.AddObjectInCache(typeof(ConstructorHelper), _constructorHelper);
         }

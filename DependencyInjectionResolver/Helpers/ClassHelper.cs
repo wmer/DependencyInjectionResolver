@@ -30,7 +30,7 @@ namespace DependencyInjectionResolver.Helpers {
         private ConstructorInfo GetConstructor(Type type) {
             lock (_lock2) {
                 var ctors = type.GetConstructors();
-                var ctor = ctors[0];
+                var ctor = ctors.FirstOrDefault();
                 for (var i = 0; i < ctors.Count(); i++) {
                     if (ctors[i].GetParameters().Count() > ctor.GetParameters().Count()) {
                         ctor = ctors[i];
