@@ -4,8 +4,8 @@ using System.Text;
 
 namespace DependencyInjectionResolver {
     public partial class DependencyInjection {
-        public DependencyInjection BindingTypes<T, U>(InstanceOptions lifetumeOptions = InstanceOptions.OneInstance) =>
-            BindingTypes(typeof(T), typeof(U), lifetumeOptions);
+        public DependencyInjection BindingTypes<T, U>() =>
+            BindingTypes(typeof(T), typeof(U));
 
         public DependencyInjection DefineConstructorSignature<T>(params Type[] paramsTypes) =>
             DefineConstructorSignature(typeof(T), paramsTypes);

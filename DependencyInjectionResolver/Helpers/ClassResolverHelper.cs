@@ -59,9 +59,6 @@ namespace DependencyInjectionResolver.Helpers {
                         objects[i] = _classDependencyHelper.TryGetDependency(type, param.Position);
                     } else {
                         var paramType = param.ParameterType;
-                        if (paramType.GetTypeInfo().IsInterface) {
-                            paramType = _typeHelper.GetImplementation(paramType);
-                        }
                         objects[i] = Resolve(paramType);
                     }
                     i++;

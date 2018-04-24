@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace DependencyInjectionResolver.Helpers {
     internal class TypeHelper {
         private static readonly Dictionary<Type, Type> DefinitionCache = new Dictionary<Type, Type>();
-        private readonly Dictionary<Type, Type> _interfaceDefinition;
+        private static readonly Dictionary<Type, Type> _interfaceDefinition = new Dictionary<Type, Type>();
         private readonly Dictionary<Type, Type[]> _signature;
 
         private readonly object _lock1 = new object();
@@ -25,7 +25,6 @@ namespace DependencyInjectionResolver.Helpers {
         private readonly object _lock11 = new object();
 
         public TypeHelper() {
-            _interfaceDefinition = new Dictionary<Type, Type>();
             _signature = new Dictionary<Type, Type[]>();
         }
 

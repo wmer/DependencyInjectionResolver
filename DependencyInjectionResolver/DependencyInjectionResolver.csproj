@@ -4,10 +4,15 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageProjectUrl>https://github.com/wmer/DependencyInjectionResolver</PackageProjectUrl>
     <RepositoryUrl>https://github.com/wmer/DependencyInjectionResolver</RepositoryUrl>
+    <Authors>William Santana</Authors>
+    <Version>1.0.2</Version>
+    <PackageLicenseUrl>https://github.com/wmer/DependencyInjectionResolver/blob/master/LICENSE</PackageLicenseUrl>
+    <Description>Biblioteca de Injeção de dependências</Description>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Reflection.Optimization\Reflection.Optimization\Reflection.Optimization.csproj" />
+    <PackageReference Include="Reflection.Optimization" Version="1.0.1" />
   </ItemGroup>
 
 </Project>

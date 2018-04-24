@@ -25,12 +25,9 @@ namespace DependencyInjectionResolver {
             _objectCache = new ObjectCache(_typeHelper);
         }
 
-        public DependencyInjection BindingTypes(Type interfaceType, Type implementationType, InstanceOptions lifetumeOptions = InstanceOptions.OneInstance) {
+        public DependencyInjection BindingTypes(Type interfaceType, Type implementationType) {
             lock (_lock1) {
                 _typeHelper.DefineImplementation(interfaceType, implementationType);
-                if (lifetumeOptions == InstanceOptions.DiferentInstances) {
-                    _objectCache.DeleteInCache(implementationType);
-                }
                 return this;
             }
         }
