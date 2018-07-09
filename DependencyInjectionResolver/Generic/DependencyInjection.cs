@@ -18,7 +18,7 @@ namespace DependencyInjectionResolver {
 
         public DependencyInjection DefineLifeTimeOptions<T>(InstanceOptions lifetumeOptions) =>
             DefineLifeTimeOptions(typeof(T), lifetumeOptions);
-        
+
         public T Resolve<T>(InstanceOptions lifetumeOptions = InstanceOptions.OneInstance) =>
             (T)Resolve(typeof(T), lifetumeOptions);
     }
