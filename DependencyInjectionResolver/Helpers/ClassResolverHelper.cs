@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using DependencyInjectionResolver.Cache;
+using DependencyInjectionResolver.Attributes;
 
 namespace DependencyInjectionResolver.Helpers {
     internal class ClassResolverHelper {
@@ -43,6 +44,16 @@ namespace DependencyInjectionResolver.Helpers {
                     var pameters = _typeHelper.ParamaterInfoToType(paramters).ToArray();
                     obj = _constructorHelper.CreateConstructor(type, pameters)(objects);
                     _objectCache.AddObjectInCache(type, obj);
+                }
+
+                var properties = obj.GetType().GetProperties();
+                foreach (var prop in properties) {
+                    var attributes = prop.GetCustomAttributes(true);
+                    var inject = attributes.Where(x => x is InjectAttribute).FirstOrDefault() is InjectAttribute;
+                    if (inject) {
+                        var value = Resolve(prop.PropertyType);
+                        prop.SetValue(obj, value, null);
+                    }
                 }
                 return obj;
             }
