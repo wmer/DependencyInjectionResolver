@@ -46,25 +46,9 @@ namespace DependencyInjectionResolver.Helpers {
                     _objectCache.AddObjectInCache(type, obj);
                 }
 
-                var properties = obj.GetType().GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-                foreach (var prop in properties) {
-                    var attributes = prop.GetCustomAttributes(true);
-                    var inject = attributes.Where(x => x is InjectAttribute).FirstOrDefault() is InjectAttribute;
-                    if (inject) {
-                        var value = Resolve(prop.PropertyType);
-                        prop.SetValue(obj, value, null);
-                    }
-                }
+                ResolveFields(obj);
+                ResolveProperties(obj);
 
-                var fields = obj.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-                foreach (var prop in fields) {
-                    var attributes = prop.GetCustomAttributes(true);
-                    var inject = attributes.Where(x => x is InjectAttribute).FirstOrDefault() is InjectAttribute;
-                    if (inject) {
-                        var value = Resolve(prop.FieldType);
-                        prop.SetValue(obj, value);
-                    }
-                }
                 return obj;
             }
         }
@@ -85,6 +69,30 @@ namespace DependencyInjectionResolver.Helpers {
                     i++;
                 }
                 return objects;
+            }
+        }
+
+        private void ResolveFields(object obj) {
+            var fields = obj.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+            foreach (var field in fields) {
+                var attributes = field.GetCustomAttributes(true);
+                var inject = attributes.Where(x => x is InjectAttribute).FirstOrDefault() is InjectAttribute;
+                if (inject) {
+                    var value = Resolve(field.FieldType);
+                    field.SetValue(obj, value);
+                }
+            }
+        }
+
+        private void ResolveProperties(object obj) {
+            var properties = obj.GetType().GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+            foreach (var prop in properties) {
+                var attributes = prop.GetCustomAttributes(true);
+                var inject = attributes.Where(x => x is InjectAttribute).FirstOrDefault() is InjectAttribute;
+                if (inject) {
+                    var value = Resolve(prop.PropertyType);
+                    prop.SetValue(obj, value, null);
+                }
             }
         }
     }
