@@ -46,13 +46,23 @@ namespace DependencyInjectionResolver.Helpers {
                     _objectCache.AddObjectInCache(type, obj);
                 }
 
-                var properties = obj.GetType().GetProperties();
+                var properties = obj.GetType().GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
                 foreach (var prop in properties) {
                     var attributes = prop.GetCustomAttributes(true);
                     var inject = attributes.Where(x => x is InjectAttribute).FirstOrDefault() is InjectAttribute;
                     if (inject) {
                         var value = Resolve(prop.PropertyType);
                         prop.SetValue(obj, value, null);
+                    }
+                }
+
+                var fields = obj.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+                foreach (var prop in fields) {
+                    var attributes = prop.GetCustomAttributes(true);
+                    var inject = attributes.Where(x => x is InjectAttribute).FirstOrDefault() is InjectAttribute;
+                    if (inject) {
+                        var value = Resolve(prop.FieldType);
+                        prop.SetValue(obj, value);
                     }
                 }
                 return obj;
