@@ -72,7 +72,7 @@ namespace DependencyInjectionResolver.Helpers {
             }
         }
 
-        private void ResolveFields(object obj) {
+        public void ResolveFields(object obj) {
             var fields = obj.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
             foreach (var field in fields) {
                 var attributes = field.GetCustomAttributes(true);
@@ -84,7 +84,7 @@ namespace DependencyInjectionResolver.Helpers {
             }
         }
 
-        private void ResolveProperties(object obj) {
+        public void ResolveProperties(object obj) {
             var properties = obj.GetType().GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
             foreach (var prop in properties) {
                 var attributes = prop.GetCustomAttributes(true);
