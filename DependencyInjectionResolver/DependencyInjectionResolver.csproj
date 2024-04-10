@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\..\OneDrive - 4C Digital\Projetos\ClassLibraries\Tools\HelpersLibs\HelpersLibs.Reflection\HelpersLibs.Reflection.csproj" />
+  </ItemGroup>
+
 </Project>
